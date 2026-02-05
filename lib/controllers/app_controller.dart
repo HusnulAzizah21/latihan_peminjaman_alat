@@ -13,62 +13,71 @@ class AppController extends GetxController {
   var passwordError = ''.obs;
 
   Future<void> login(String email, String password) async {
+    // 1. Reset error setiap kali tombol ditekan
     emailError.value = '';
     passwordError.value = '';
 
-    if (email.isEmpty) {
-      emailError.value = 'Email tidak boleh kosong';
-      return;
-    }
-    if (password.isEmpty) {
-      passwordError.value = 'Password tidak boleh kosong';
-      return;
-    }
+    // 2. Cek validasi input kosong (Lokal)
+    if (email.isEmpty) emailError.value = 'Email tidak boleh kosong';
+    if (password.isEmpty) passwordError.value = 'Password tidak boleh kosong';
+    if (email.isEmpty || password.isEmpty) return;
 
     try {
       isLoading.value = true;
 
-      final response = await supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-
-      final user = response.user;
-      if (user == null) {
-        isLoading.value = false;
-        return;
-      }
-
-      // Pastikan nama tabel sama dengan yang ada di SplashPage (Gunakan 'profiles')
-      final profile = await supabase
-          .from('profiles') 
-          .select()
-          .eq('id', user.id)
+      // 3. Langkah Cek Email (Pre-check)
+      // Kita cek apakah email ini ada di tabel profiles
+      final emailCheck = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('email', email)
           .maybeSingle();
 
-      if (profile == null) {
-        Get.snackbar("Error", "Data profil tidak ditemukan.");
-        isLoading.value = false;
-        return;
-      }
+      // 4. Proses Login ke Supabase Auth
+      // Kita jalankan login untuk mengecek password
+      try {
+        await supabase.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
 
-      final role = profile['role'];
+        // Jika berhasil login, ambil data profil untuk navigasi role
+        final user = supabase.auth.currentUser;
+        if (user != null) {
+          final profile = await supabase
+              .from('profiles')
+              .select()
+              .eq('id', user.id)
+              .maybeSingle();
 
-      if (role == 'Admin') {
-        Get.offAll(() => const AdminPage());
-      } else if (role == 'Petugas') {
-        Get.offAll(() => const PetugasPage());
-      } else {
-        Get.offAll(() => const PeminjamPage());
-      }
-    } on AuthException catch (e) {
-      if (e.message.toLowerCase().contains('invalid login credentials')) {
-        emailError.value = 'Email atau kata sandi salah';
-      } else {
-        Get.snackbar("Login Gagal", e.message);
+          if (profile != null) {
+            final role = profile['role'];
+            if (role == 'Admin') {
+              Get.offAll(() => const AdminBerandaPage());
+            } else if (role == 'Petugas') {
+              Get.offAll(() => const PetugasBerandaPage());
+            } else {
+              Get.offAll(() => const PeminjamPage());
+            }
+          }
+        }
+      } on AuthException catch (e) {
+        // --- LOGIKA VALIDASI DINAMIS ANDA ---
+        if (e.message.toLowerCase().contains('invalid login credentials')) {
+          if (emailCheck == null) {
+            // Kasus 1: Email tidak ada di database DAN password salah (atau dianggap salah oleh auth)
+            emailError.value = 'Email tidak terdaftar';
+            passwordError.value = 'Kata sandi salah';
+          } else {
+            // Kasus 2: Email ada di database, berarti fiks hanya password yang salah
+            passwordError.value = 'Kata sandi salah';
+          }
+        } else {
+          Get.snackbar("Login Gagal", e.message);
+        }
       }
     } catch (e) {
-      Get.snackbar("Error", "Terjadi kesalahan: $e");
+      Get.snackbar("Error", "Terjadi kesalahan sistem: $e");
     } finally {
       isLoading.value = false;
     }

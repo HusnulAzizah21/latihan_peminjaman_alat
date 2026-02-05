@@ -1,25 +1,23 @@
-import 'package:aplikasi_peminjamanbarang/controllers/app_controller.dart';
-import 'package:aplikasi_peminjamanbarang/pages/peminjam/beranda.dart';
-import 'package:aplikasi_peminjamanbarang/pages/peminjam/peminjaman.dart';
-import 'package:aplikasi_peminjamanbarang/pages/peminjam/riwayat.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../controllers/app_controller.dart'; // Sesuaikan dengan path controller Anda
 
-class PeminjamDrawer extends StatelessWidget {
-  final String currentPage;
-  const PeminjamDrawer({super.key, required this.currentPage});
+class AdminDrawer extends StatelessWidget {
+  const AdminDrawer({super.key, required String currentPage});
 
   @override
   Widget build(BuildContext context) {
     final c = Get.find<AppController>();
+    
+    // Mengambil data user dari Supabase (atau fallback jika kosong)
     final user = c.supabase.auth.currentUser;
-    final String userEmail = user?.email ?? "User@gmail.com";
-    final String userName = userEmail.split('@')[0].capitalizeFirst ?? "User";
+    final String userEmail = user?.email ?? "husnul@gmail.com";
+    final String userName = userEmail.split('@')[0].capitalizeFirst ?? "Husnul";
 
     return Drawer(
       child: Column(
         children: [
-          // HEADER PROFILE (Biru Gelap)
+          // HEADER PROFILE (Warna Biru Gelap sesuai Gambar)
           Container(
             padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 30),
             width: double.infinity,
@@ -60,29 +58,41 @@ class PeminjamDrawer extends StatelessWidget {
               ],
             ),
           ),
-          // MENU ITEMS
+
+          // LIST MENU
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(vertical: 10),
               children: [
-                const SizedBox(height: 10),
                 _buildMenuItem(
                   icon: Icons.home,
                   title: "Beranda",
-                  isActive: currentPage == 'beranda',
-                  onTap: () => Get.offAll(() => const PeminjamPage()),
+                  isActive: Get.currentRoute == '/admin-beranda', // Logika aktif
+                  onTap: () => Get.offNamed('/admin-beranda'),
                 ),
                 _buildMenuItem(
-                  icon: Icons.add_box,
-                  title: "Peminjaman",
-                  isActive: currentPage == 'peminjaman',
-                  onTap: () => Get.offAll(() => const PeminjamanPage()),
+                  icon: Icons.inventory_2,
+                  title: "Manajemen Alat",
+                  isActive: Get.currentRoute == '/manajemen-alat',
+                  onTap: () => Get.offNamed('/manajemen-alat'),
+                ),
+                _buildMenuItem(
+                  icon: Icons.assignment,
+                  title: "Data Peminjaman",
+                  isActive: Get.currentRoute == '/data-peminjaman',
+                  onTap: () => Get.offNamed('/data-peminjaman'),
+                ),
+                _buildMenuItem(
+                  icon: Icons.person,
+                  title: "Manajemen Pengguna",
+                  isActive: Get.currentRoute == '/manajemen-pengguna',
+                  onTap: () => Get.offNamed('/manajemen-pengguna'),
                 ),
                 _buildMenuItem(
                   icon: Icons.history,
-                  title: "Riwayat",
-                  isActive: currentPage == 'riwayat',
-                  onTap: () => Get.offAll(() => const RiwayatPage()),
+                  title: "Log Aktivitas",
+                  isActive: Get.currentRoute == '/log-aktivitas',
+                  onTap: () => Get.offNamed('/log-aktivitas'),
                 ),
                 _buildMenuItem(
                   icon: Icons.logout,
@@ -178,23 +188,34 @@ class PeminjamDrawer extends StatelessWidget {
     );
   }
 
+  // Helper untuk membuat item menu yang sama persis
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
     bool isActive = false,
     required VoidCallback onTap,
+    Color? color,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? Colors.grey[200] : Colors.transparent,
+        color: isActive ? Colors.grey[300] : Colors.transparent, // Background abu-abu jika aktif
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF1F3C58)),
+        visualDensity: const VisualDensity(vertical: -2), // Merapatkan menu sesuai gambar
+        leading: Icon(
+          icon,
+          color: color ?? const Color(0xFF1F3C58),
+          size: 24,
+        ),
         title: Text(
           title,
-          style: const TextStyle(color: Color(0xFF1F3C58), fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: color ?? const Color(0xFF1F3C58),
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+            fontSize: 15,
+          ),
         ),
         onTap: onTap,
       ),
