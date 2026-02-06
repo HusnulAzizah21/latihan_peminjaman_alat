@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/app_controller.dart';
-import 'drawer.dart';
+import '../../../controllers/app_controller.dart';
+import '../drawer.dart';
 import 'crud_alat/edit_alat.dart'; 
 import 'crud_kategori/kelola_kategori.dart';
-import 'crud_alat/tambah_alat.dart'; // Pastikan import halaman tambah alat baru kamu benar
+import 'crud_alat/tambah_alat.dart'; 
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -198,39 +198,45 @@ class _AdminBerandaPageState extends State<AdminPage> {
         ],
       ),
 
-      // --- PERUBAHAN DI SINI: MENGGUNAKAN POPUPMENU ---
-      floatingActionButton: PopupMenuButton<String>(
-        offset: const Offset(0, -110),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        onSelected: (value) {
-          if (value == 'alat') {
-            // Mengarah ke halaman tambah alat (bukan edit alat kosong)
-            Get.to(() => const TambahAlatPage()); 
-          } else if (value == 'kategori') {
-            Get.to(() => const KelolaKategoriPage());
-          }
-        },
-        child: Container(
-          height: 60,
-          width: 60,
-          decoration: const BoxDecoration(
-            color: Color(0xFF1F3C58),
-            shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 70.0), // Sesuaikan angka ini (misal: 20 atau 30) untuk menaikkan tombol
+        child: PopupMenuButton<String>(
+          offset: const Offset(0, -110),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          onSelected: (value) async {
+            if (value == 'alat') {
+              final result = await Get.to(() => const TambahAlatPage());
+              if (result == true) setState(() {});
+            } else if (value == 'kategori') {
+              Get.to(() => const KelolaKategoriPage());
+            }
+          },
+          child: Container(
+            height: 60,
+            width: 60,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1F3C58),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
+              ],
+            ),
+            child: const Icon(Icons.add, color: Colors.white, size: 35),
           ),
-          child: const Icon(Icons.add, color: Colors.white, size: 35),
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'alat',
+              child: Text("Tambah Alat",
+                  style: TextStyle(color: Color(0xFF1F3C58), fontWeight: FontWeight.w600)),
+            ),
+            const PopupMenuDivider(),
+            const PopupMenuItem(
+              value: 'kategori',
+              child: Text("Tambah Kategori",
+                  style: TextStyle(color: Color(0xFF1F3C58), fontWeight: FontWeight.w600)),
+            ),
+          ],
         ),
-        itemBuilder: (context) => [
-          const PopupMenuItem(
-            value: 'alat',
-            child: Text("Tambah Alat", style: TextStyle(color: Color(0xFF1F3C58), fontWeight: FontWeight.w600)),
-          ),
-          const PopupMenuDivider(),
-          const PopupMenuItem(
-            value: 'kategori',
-            child: Text("Tambah Kategori", style: TextStyle(color: Color(0xFF1F3C58), fontWeight: FontWeight.w600)),
-          ),
-        ],
       ),
     );
   }
@@ -287,9 +293,10 @@ class _AdminBerandaPageState extends State<AdminPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
                           Navigator.pop(context);
-                          Get.to(() => EditAlatPage(alat: item));
+                          final res = await Get.to(() => EditAlatPage(alat: item));
+                          if (res == true) setState(() {});
                         },
                         child: Container(
                           padding: const EdgeInsets.all(6),

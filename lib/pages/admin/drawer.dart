@@ -1,3 +1,5 @@
+import 'package:aplikasi_peminjamanbarang/pages/admin/manajemen_alat/admin_page.dart';
+import 'package:aplikasi_peminjamanbarang/pages/admin/manajemen_user/manajemen_pengguna.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/app_controller.dart';
@@ -71,7 +73,12 @@ class AdminDrawer extends StatelessWidget {
                   icon: Icons.inventory_2,
                   title: "Manajemen Alat",
                   isActive: currentPage == 'Manajemen Alat',
-                  onTap: () => Get.offNamed('/manajemen-alat'),
+                 onTap: () {
+                    Get.back(); // Tutup drawer agar tidak nyangkut
+                    
+                    // Ganti Get.offNamed menjadi Get.off dengan memanggil Class halamannya
+                    Get.off(() => const AdminPage()); 
+                  },
                 ),
                 _buildMenuItem(
                   icon: Icons.assignment,
@@ -83,7 +90,12 @@ class AdminDrawer extends StatelessWidget {
                   icon: Icons.person,
                   title: "Manajemen Pengguna",
                   isActive: currentPage == 'Manajemen Pengguna',
-                  onTap: () => Get.offNamed('/manajemen-pengguna'),
+                  onTap: () {
+                    Get.back(); // Tutup drawer agar tidak nyangkut
+                    
+                    // Ganti Get.offNamed menjadi Get.off dengan memanggil Class halamannya
+                    Get.off(() => const ManajemenPenggunaPage()); 
+                  },
                 ),
                 _buildMenuItem(
                   icon: Icons.history,

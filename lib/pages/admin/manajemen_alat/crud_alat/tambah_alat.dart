@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../controllers/app_controller.dart';
+import '../../../../controllers/app_controller.dart';
 
 class TambahAlatPage extends StatefulWidget {
   const TambahAlatPage({super.key});
@@ -55,17 +55,19 @@ class _TambahAlatPageState extends State<TambahAlatPage> {
         final String path = "alat/${DateTime.now().millisecondsSinceEpoch}.$fileExt";
         
         // Menggunakan uploadBinary agar universal
-        await c.supabase.storage.from('gambar_url').uploadBinary(path, _imageBytes!);
-        imageUrl = c.supabase.storage.from('gambar_url').getPublicUrl(path);
+        await c.supabase.storage.from('daftar_alat').uploadBinary(path, _imageBytes!);
+        imageUrl = c.supabase.storage.from('daftar_alat').getPublicUrl(path);
       }
 
       // 2. OTOMATIS SIMPAN KE TABEL DATABASE
       await c.supabase.from('alat').insert({
         'nama_alat': nameController.text.trim(),
         'id_kategori': int.parse(selectedKategori!),
-        'stok': int.parse(stokController.text.trim()),
+        'stok_total': int.parse(stokController.text.trim()),
         'gambar_url': imageUrl, 
       });
+
+      Get.back(result: true);
 
       // 3. BERHASIL - LANGSUNG KEMBALI
       Get.back(); 
