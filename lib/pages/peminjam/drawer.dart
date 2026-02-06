@@ -23,19 +23,17 @@ class PeminjamDrawer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 30),
             width: double.infinity,
-            color: const Color(0xFF1F3C58), // Warna Navy sesuai contoh
+            color: const Color(0xFF1F3C58),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
                   radius: 35,
-                  backgroundColor:Colors.white, // Warna background lingkaran
+                  backgroundColor: Colors.white,
                   child: Text(
-                    // Mengambil nama dari database, jika null pakai 'User'
-                    // Lalu ambil karakter pertama dan jadikan huruf kapital
-                    (c.supabase.auth.currentUser?.email ?? "U")[0].toUpperCase(),
+                    (userEmail.isNotEmpty ? userEmail[0].toUpperCase() : "U"),
                     style: const TextStyle(
-                      color: Color(0xFF1F3C58),// Warna huruf
+                      color: Color(0xFF1F3C58),
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
@@ -52,10 +50,7 @@ class PeminjamDrawer extends StatelessWidget {
                 ),
                 Text(
                   userEmail,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ],
             ),
@@ -63,9 +58,8 @@ class PeminjamDrawer extends StatelessWidget {
           // MENU ITEMS
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(vertical: 10),
               children: [
-                const SizedBox(height: 10),
                 _buildMenuItem(
                   icon: Icons.home,
                   title: "Beranda",
@@ -87,88 +81,7 @@ class PeminjamDrawer extends StatelessWidget {
                 _buildMenuItem(
                   icon: Icons.logout,
                   title: "Keluar",
-                  onTap: () {
-                    Get.dialog(
-                      Dialog(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                "Keluar",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1F3C58),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                "Anda yakin ingin keluar dari aplikasi?",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF1F3C58),
-                                ),
-                              ),
-                              const SizedBox(height: 25),
-                              Row(
-                                children: [
-                                  // TOMBOL BATAL
-                                  Expanded(
-                                    child: OutlinedButton(
-                                      onPressed: () => Get.back(),
-                                      style: OutlinedButton.styleFrom(
-                                        side: const BorderSide(color: Color(0xFF1F3C58)),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                      ),
-                                      child: const Text(
-                                        "Batal",
-                                        style: TextStyle(
-                                          color: Color(0xFF1F3C58),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  // TOMBOL YA
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () => c.logout(),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF1F3C58),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                      ),
-                                      child: const Text(
-                                        "Ya",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                  onTap: () => _showLogoutDialog(context, c),
                 ),
               ],
             ),
@@ -184,19 +97,75 @@ class PeminjamDrawer extends StatelessWidget {
     bool isActive = false,
     required VoidCallback onTap,
   }) {
+    const Color primaryColor = Color(0xFF1F3C58);
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? Colors.grey[200] : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
+        // EFEK BACKGROUND AKTIF
+        color: isActive ? primaryColor.withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF1F3C58)),
+        visualDensity: const VisualDensity(vertical: -2),
+        leading: Icon(
+          icon,
+          color: isActive ? primaryColor : primaryColor.withOpacity(0.7),
+          size: 24,
+        ),
         title: Text(
           title,
-          style: const TextStyle(color: Color(0xFF1F3C58), fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+            fontSize: 15,
+          ),
         ),
         onTap: onTap,
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AppController c) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Keluar", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F3C58))),
+              const SizedBox(height: 10),
+              const Text("Anda yakin ingin keluar dari aplikasi?", textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF1F3C58))),
+              const SizedBox(height: 25),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF1F3C58)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      child: const Text("Batal", style: TextStyle(color: Color(0xFF1F3C58))),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => c.logout(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1F3C58),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      child: const Text("Ya", style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

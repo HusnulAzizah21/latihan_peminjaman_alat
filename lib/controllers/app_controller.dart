@@ -28,7 +28,7 @@ class AppController extends GetxController {
       // 3. Langkah Cek Email (Pre-check)
       // Kita cek apakah email ini ada di tabel profiles
       final emailCheck = await supabase
-          .from('profiles')
+          .from('users')
           .select('email')
           .eq('email', email)
           .maybeSingle();
@@ -45,15 +45,15 @@ class AppController extends GetxController {
         final user = supabase.auth.currentUser;
         if (user != null) {
           final profile = await supabase
-              .from('profiles')
+              .from('users')
               .select()
-              .eq('id', user.id)
+              .eq('id_user', user.id)
               .maybeSingle();
 
           if (profile != null) {
             final role = profile['role'];
             if (role == 'Admin') {
-              Get.offAll(() => const AdminBerandaPage());
+              Get.offAll(() => const AdminPage());
             } else if (role == 'Petugas') {
               Get.offAll(() => const PetugasBerandaPage());
             } else {

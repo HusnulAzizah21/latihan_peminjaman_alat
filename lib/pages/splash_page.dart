@@ -48,7 +48,7 @@ class _SplashPageState extends State<SplashPage> {
         final role = profile['role'];
 
         if (role == 'Admin') {
-          Get.offAll(() => const AdminBerandaPage());
+          Get.offAll(() => const AdminPage());
         } else if (role == 'Petugas') {
           Get.offAll(() => const PetugasBerandaPage());
         } else {
